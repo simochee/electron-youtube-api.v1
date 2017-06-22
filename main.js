@@ -19,17 +19,11 @@ let mainWindow;
 
 const createWindow = () => {
     // ブラウザウィンドウを作成
-    mainWindow = new BrowserWindow({
-        width: config.window.width,
-        height: config.window.height,
-        minWidth: config.window.minWidth,
-        minHeight: config.window.minHeight,
-        frame: config.window.frame,
-    });
+    mainWindow = new BrowserWindow(config.window);
 
     // index.htmlを読み込む
     mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'assets', 'html', 'index.html'),
+        pathname: path.join(__dirname, 'build', 'index.html'),
         protocol: 'file:',
         slashes: true,
     }));

@@ -1,27 +1,25 @@
+// Gulp
 const cssnext = require('postcss-cssnext');
-const electron = require('electron-connect').server.create();
 const gulp = require('gulp');
 const plumber = require('gulp-plumber');
 const postcss = require('gulp-postcss');
 const pug = require('gulp-pug');
-const rename = require('gulp-rename');
 const sourcemaps = require('gulp-sourcemaps');
 const stylus = require('gulp-stylus');
 const watch = require('gulp-watch');
-const webpack = require('gulp-webpack');
-const YAML = require('yamljs');
+const webpack = require('webpack-stream');
+// Electron
+const electron = require('electron-connect').server.create();
 
-gulp.task('serve', () => {
-    electron.start(); 
-});
-
+// Pugをビルド
 gulp.task('pug', () => {
-    gulp.src('./src/pug/!(_)*.pug')
+    gulp.src('./src/pug/*.pug')
         .pipe(plumber())
         .pipe(pug())
-        .pipe(gulp.dest('./assets/html'));
+        .pipe(gulp.dest('./build'));
 });
 
+// Stylusをビルド
 gulp.task('stylus', () => {
     gulp.src('./src/stylus/!(_)*.styl')
         .pipe(plumber())
@@ -29,32 +27,41 @@ gulp.task('stylus', () => {
         .pipe(stylus())
         .pipe(postcss([ cssnext({ browsers: ['last 1 version'] }) ]))
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest('./assets/css'))
+        .pipe(gulp.dest('./build/css'));
 });
 
-gulp.task('js', () => {
-    gulp.src('')
-        .pipe(plumber())
-        .pipe(webpack(require('./webpack.config.js')))
-        .pipe(gulp.dest('./assets/js'));
-});
-
-gulp.task('watch', () => {
-    watch(['./src/pug/**/*.pug'], () => {
+gulp.task('build:watch', () => {
+    // ビルドの監視
+    watch('./src/pug/**/*.pug', () => {
         gulp.start('pug');
     });
     watch('./src/stylus/**/*.styl', () => {
         gulp.start('stylus');
     });
-    watch('./src/scripts/**/*', () => {
-        gulp.start('js');
-    });
-    // ElectronのLivereload
-    watch(['main.js', 'config.yml'], () => {
-        console.log('happen');
-        electron.restart();
-    });
-    watch('./assets/**/*', electron.reload);
 });
 
-gulp.task('dev', ['watch', 'serve', 'pug', 'stylus', 'js']);
+gulp.task('build', ['build:watch', 'pug', 'stylus']);
+
+// Electronを起動
+gulp.task('serve', () => {
+    electron.start();
+});
+
+// ElectronをCLIから再起動
+gulp.task('self-restart', () => {
+    process.stdin.setEncoding('utf-8');
+    process.stdin.on('data', (data) => {
+        if(data.match(/rs/)) {
+            electron.restart();
+            console.log('Application Restart');
+        }
+    });
+});
+
+gulp.task('app:watch', () => {
+    // ElectronのLiveReload
+    watch(['main.js', 'config.yml'], electron.restart);
+    watch('./build/**/*', electron.reload);
+});
+
+gulp.task('app', ['app:watch', 'serve', 'self-restart']);

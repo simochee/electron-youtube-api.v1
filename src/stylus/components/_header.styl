@@ -1,0 +1,84 @@
+app-header
+    h = 42px
+    p = 12px
+    box-sizing border-box
+    height h
+    left 0
+    position fixed
+    top 0
+    width 100%
+    z-index 5001
+    transition background .12s ease, opacity .3s ease
+    &[data-hide]
+        opacity 0
+    h1
+        color #fff
+        flex 1
+        left p
+        line-height h
+        overflow hidden
+        position absolute
+        right (h * 2 + p * 2)
+        text-overflow ellipsis
+        top 0
+        transition opacity .2s ease
+        white-space nowrap
+    .header-nav
+        display flex
+        position absolute
+        right p
+        top 0
+        transition width .2s ease
+        width h * 2
+        button
+            color #fff
+            font-size 15px
+            height h
+            width h
+            z-index 1
+        .nav-search
+            display flex
+            no-drag()
+            position relative
+            form
+                position absolute
+                top 0
+                left 0
+                bottom 0
+                right 0
+            input
+                size = 36px
+                dr = .12s
+                es = ease
+                border-bottom 1px solid transparent
+                box-sizing border-box
+                color #fff
+                display block
+                font-size 15px
+                height size
+                margin-top ((h - size) / 2)
+                opacity .4
+                padding 0
+                transition border-color dr es, margin dr es, padding dr es, opacity dr es
+                width 0
+                &::-webkit-input-placeholder
+                    color rgba(#fff, .6)
+            .submit-button
+                display none
+    &[data-mode=search]
+        // background $theme
+        background rgba(#000, .65)
+        h1
+            opacity 0
+        .header-nav
+            width calc(100% - 24px)
+            .nav-search
+                flex 1
+                input
+                    size = 36px
+                    border-color rgba(#fff, .5)
+                    padding 0 15px 0 h
+                    opacity 1
+                    width 100%
+    &[data-mode=player]
+        background rgba(#000, .65)
